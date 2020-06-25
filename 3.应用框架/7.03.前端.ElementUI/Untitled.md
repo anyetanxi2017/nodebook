@@ -26,7 +26,63 @@ const defaultListQuery = {
 };
 data(){
   return {
-    listQuery: Object.assign({}, defaultListQuery)
+    listQuery: Object.assign({}, defaultListQuery),
+    pickerOptions: {
+      shortcuts: [{
+        text: '今天',
+        onClick(picker) {
+          const end = new Date(new Date().setHours(23, 59, 59, 0));
+          const start = new Date(new Date().setHours(0, 0, 0, 0));
+          picker.$emit('pick', [start, end]);
+        }
+      }, {
+        text: ' 昨天',
+        onClick(picker) {
+          const end = new Date(new Date().setHours(23, 59, 59, 0));
+          const start = new Date(new Date().setHours(0, 0, 0, 0));
+          start.setTime(start.getTime() - 1000 * 3600 * 24);
+          end.setTime(end.getTime() - 1000 * 3600 * 24)
+          picker.$emit('pick', [start, end]);
+        }
+      },
+        {
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        },
+        {
+          text: '本月',
+          onClick(picker) {
+            const start = new Date();
+            start.setDate(1);
+            start.setMonth(start.getMonth())
+            start.setHours(0, 0, 0, 0)
+            const date = new Date();
+            const day = new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+            const end = new Date(new Date().getFullYear(), new Date().getMonth(), day);
+            end.setHours(23, 59, 59, 0)
+            picker.$emit('pick', [start, end]);
+          }
+        },
+        {
+          text: '上月',
+          onClick(picker) {
+            const start = new Date();
+            start.setDate(1);
+            start.setMonth(start.getMonth() - 1)
+            start.setHours(0, 0, 0, 0)
+            const date = new Date();
+            const day = new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+            const end = new Date(new Date().getFullYear(), new Date().getMonth() - 1, day);
+            end.setHours(23, 59, 59, 0)
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+    }
   }
 }
 ```
