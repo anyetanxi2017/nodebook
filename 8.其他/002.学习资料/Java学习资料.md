@@ -1,6 +1,11 @@
 ## 书籍
 - [重构:改善既有代码的设计](https://blog.csdn.net/qq_37781649/article/details/103405833?utm_source=app)
 
+
+## github
+- [CS-Note](https://cyc2018.github.io/CS-Notes/#/README)
+- [Linux 命令行的艺术](https://github.com/jlevy/the-art-of-command-line/blob/master/README-zh.md)
+- [设计模式](https://github.com/iluwatar/java-design-patterns)
 ## 综合
 - [达内学习代码](http://code.tarena.com.cn/JSDCode/) tarenacode code_2013
 - [苍老师达内开发文档服务](http://doc.canglaoshi.org/)
@@ -19,7 +24,14 @@
 ## 知乎
 - [圆胖肿(Java大佬)](https://www.zhihu.com/people/zhao-ce-33)
 
+## 私活平台
+- [沉默王二博客](http://www.itwanger.com/life/2019/10/27/programmer-sihuo-pingtai.html)
+
+
+## 算法
+- [力扣](https://leetcode-cn.com/explore/featured/card/top-interview-questions-easy/)
 ## 技能点
+- [大型系统设计](https://github.com/donnemartin/system-design-primer/blob/master/README-zh-Hans.md)
 - [intelliJ IDEA插件开发入门教程(一)](https://blog.csdn.net/csdn_xpw/article/details/78946781)
 
 孙玲的小故事
