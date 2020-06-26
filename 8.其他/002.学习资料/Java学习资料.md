@@ -33,6 +33,7 @@
 ## 技能点
 - [大型系统设计](https://github.com/donnemartin/system-design-primer/blob/master/README-zh-Hans.md)
 - [intelliJ IDEA插件开发入门教程(一)](https://blog.csdn.net/csdn_xpw/article/details/78946781)
+- [Java FX学习](https://www.yiibai.com/javafx/javafx_overview.html)
 
 孙玲的小故事
 ```
