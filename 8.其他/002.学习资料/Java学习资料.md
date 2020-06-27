@@ -6,6 +6,13 @@
 - [CS-Note](https://cyc2018.github.io/CS-Notes/#/README)
 - [Linux 命令行的艺术](https://github.com/jlevy/the-art-of-command-line/blob/master/README-zh.md)
 - [设计模式](https://github.com/iluwatar/java-design-patterns)
+- [github排行榜](https://gitstar-ranking.com/repositories)
+- [深入浅出Java多线程](http://concurrent.redspider.group)
+- [Spring源码阅读](https://github.com/seaswalker/spring-analysis)
+- [分享github上有趣的项目](https://hellogithub.com/)
+- [年薪百万互联网架构师课程文档及源码(公开部分)](https://github.com/bjmashibing/InternetArchitect)
+- [免费开源的在线云盘项目](https://github.com/zhaojun1998/zfile)
+- [Spring 系列教程](https://github.com/wuyouzhuguli/SpringAll)
 ## 综合
 - [达内学习代码](http://code.tarena.com.cn/JSDCode/) tarenacode code_2013
 - [苍老师达内开发文档服务](http://doc.canglaoshi.org/)
