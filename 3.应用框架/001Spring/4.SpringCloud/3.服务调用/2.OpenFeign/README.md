@@ -1,0 +1,19 @@
+* [简介](#简介)
+* [功能](#功能)
+* [pom.xml](#pom.xml)
+* [application.properties](#application.properties)
+* [OrderFeignMain80](#OrderFeignMain80)
+* [服务层](#服务层)
+* [控制层](#控制层)
+* [OpenFeign超时控制](#OpenFeign超时控制)
+* [OpenFeign日志打印](#OpenFeign日志打印)
+
+# 简介
+# 功能
+# pom.xml
+# application.properties
+# OrderFeignMain80
+# 服务层
+# 控制层
+# OpenFeign超时控制
+# OpenFeign日志打印
