@@ -5,6 +5,9 @@
     * [服务熔断 Break](#服务熔断Break)
     * [服务限流 Flowlimit](#服务限流Flowlimit)
 * [HystrixDEMO](#HystrixDEMO)
+    * [创建项目](#创建项目)
+    * [服务降级](#服服务降级)
+    * [服务熔断](#服服务熔断)
 
 # 概述
 **分布式系统面临的问题**
@@ -35,3 +38,170 @@ Hystrix是一个用于处理分布式系统的延迟和容错的开源库，在�
 ## 服务限流Flowlimit
 秒杀高并发等操作，大家排除，一秒钟N个，有序进行。
 # HystrixDEMO
+## 创建项目
+(服务降级demo)
+pom.xml
+```
+<dependencies>
+  <dependency>
+    <groupId>com.atguigu.springcloud</groupId>
+    <artifactId>cloud-api-commons</artifactId>
+  </dependency>
+  <!--hystrix-->
+  <dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+  </dependency>
+
+  <!--eureka client-->
+  <dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid-spring-boot-starter</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <scope>runtime</scope>
+    <optional>true</optional>
+  </dependency>
+  <dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+  </dependency>
+</dependencies>
+<build>
+<plugins>
+  <plugin>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-maven-plugin</artifactId>
+  </plugin>
+</plugins>
+</build>
+```
+application.properties
+```
+server.port=8001
+spring.application.name=cloud-provider-hystrix-payment
+spring.datasource.type=com.alibaba.druid.pool.DruidDataSource
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost:3306/db2019?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&useAffectedRows=true&useSSL=false
+spring.datasource.username=root
+spring.datasource.password=123456
+mybatis.mapper-locations=classpath:mapper/*.xml
+mybatis.type-aliases-package=com.atguigu.springcloud.entities
+# 是否将自己注册到 EurekaServer 默认为true
+eureka.client.register-with-eureka=true
+# 是否从 EurekaServer 抓取自己的注册信息，默认为true。单节点无所谓，集群必须设置为true才能配合 ribbon使用负载均衡
+eureka.client.fetch-registry=true
+eureka.client.service-url.defaultZone=http://localhost:7001/eureka,http://localhost:7002/eureka
+eureka.instance.instance-id=payment8001
+eureka.instance.prefer-ip-address=true
+# Eureka 客户端发送心跳的时间间隔 ，单位为秒 （默认为30秒）
+eureka.instance.lease-renewal-interval-in-seconds=1
+# Eureka 服务端在收到最后一次心跳后等待时间上限，单位为秒（默认90秒），超时将剔除服务
+eureka.instance.lease-expiration-duration-in-seconds=2
+
+```
+main.java
+```
+@SpringBootApplication
+@EnableEurekaClient
+@EnableCircuitBreaker //降级
+public class PaymentHystixMain8001 {
+  public static void main(String[] args) {
+    SpringApplication.run(PaymentHystixMain8001.class, args);
+  }
+}
+
+```
+controller
+```
+@RestController
+@Slf4j
+public class PaymentController {
+  @Resource
+  private PaymentService paymentService;
+  @Value("${server.port}")
+  private Integer port;
+
+  @GetMapping("/payment/hystrix/ok/{id}")
+  public String paymentInfo_ok(@PathVariable Integer id) {
+    String result = paymentService.paymentInfo_ok(id);
+    log.info("***********result:" + result);
+    return result;
+  }
+
+  @GetMapping("/payment/hystrix/timeout/{id}")
+  public String paymentInfo_timeOut(@PathVariable Integer id) {
+    String result = paymentService.paymentInfo_Timeout(id);
+    log.info("***********result:" + result);
+    return result;
+  }
+}
+
+```
+service
+```
+@Service
+public class PaymentService {
+
+  /**
+   * 超时3秒钟则服务降级 或报错 fallback 也服务降级
+   */
+  @HystrixCommand(fallbackMethod = "paymentInfo_TimeOutHandler", commandProperties = {
+      @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")})
+  public String paymentInfo_Timeout(Integer id) {
+    int a = 20 / 0; //造错
+    final int millis = 5000; //超时
+    ThreadUtil.sleep(millis);
+    return "线程池：" + Thread.currentThread().getName() + " paymentInfo_TimeOut,id:" + id
+        + "\t 耗时：(毫秒)" + millis;
+  }
+
+  /**
+   * 降级处理方法
+   */
+  public String paymentInfo_TimeOutHandler(Integer id) {
+    return "线程池：" + Thread.currentThread().getName() + " 系统繁忙请稍后再试";
+  }
+
+  /**
+   * 正常访问肯定ok
+   */
+  public String paymentInfo_ok(Integer id) {
+    return "线程池：" + Thread.currentThread().getName() + " paymentInfo_ok,id:" + id + "\t";
+  }
+
+}
+```
+## 服务降级
+（一般在客户端进行降级处理）
+## 服务熔断
