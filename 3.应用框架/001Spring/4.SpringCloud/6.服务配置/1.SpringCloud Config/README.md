@@ -178,5 +178,44 @@ public class ConfigClientController {
 master branch springcloud-config/config-dev.properties version=1
 ```
 # Config动态刷新之手动版本
+解决的问题：避免每次更新配置都要重启客户端微服务
 
+## 修改配置类客户端
+### step1. pom.xml
+加入依赖
+```
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!--监控-->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+```
+### step2. 修改application.properties 显露监控端口
+```
+# 显露监控端点
+management.endpoints.web.exposure.include="*"
+```
+### step3. 添加@RefreshScope业务类 Controller修改
 
+```
+@RestController
+@RefreshScope
+public class ConfigClientController {
+    @Value("${config.info}")
+    private String configInfo;
+
+    @GetMapping("/configInfo")
+    public String getConfigInfo() {
+        return configInfo;
+    }
+}
+```
+### 手动发动POST请求刷新3355客户端配置
+`curl -X POST "http://localhost:3355/actuator/refresh"`
+```
+config.client.version","spring.cloud.client.hostname","config.info"
+```
