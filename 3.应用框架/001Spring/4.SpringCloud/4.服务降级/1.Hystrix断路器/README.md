@@ -41,7 +41,7 @@ Hystrix是一个用于处理分布式系统的延迟和容错的开源库，在�
 ## 创建项目
 (服务降级demo)
 
-pom.xml
+### pom.xml
 ```
 <dependencies>
   <dependency>
@@ -107,7 +107,7 @@ pom.xml
 </plugins>
 </build>
 ```
-application.properties
+### application.properties
 ```
 server.port=8001
 spring.application.name=cloud-provider-hystrix-payment
