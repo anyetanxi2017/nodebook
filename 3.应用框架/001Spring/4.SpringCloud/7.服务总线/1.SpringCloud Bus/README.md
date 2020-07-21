@@ -46,4 +46,24 @@ spring.rabbitmq.port=5672
 spring.rabbitmq.username=guest
 spring.rabbitmq.password=guest
 ```
-# SpringCloudBus动态刷新点通知
+## 测试
+1. 启动 eureka7001 7002
+2. 启动 配置中心3344
+3. 启动 客户端 3355 3366
+4. 请求 3344配置文件 `http://localhost:3344/config-dev.properties`
+```
+config.info: master branch springcloud-config/config-dev.properties version=2
+```
+5. 请求 3355/3366 `http://localhost:3355/configInfo`
+```
+master branch springcloud-config/config-dev.properties version=2
+```
+6. 修改 github上面的配置文件 
+```
+config.info=master branch springcloud-config/config-dev.properties version=10
+
+```
+7. 重复请求 4-5步 会发现 3344已经变成 `version=10`了。但 3355和3366还没有改变。接近下一步
+8. 手动请求配置中心`curl -X POST "http://localhost:3344/actuator/bus-refresh"` 通知所有订阅的客户端自己刷新自己的配置。
+9. 再执行第5步，会发现配置已经更新为`version=10` 说明成功了
+# SpringCloudBus动态刷新点通知 
