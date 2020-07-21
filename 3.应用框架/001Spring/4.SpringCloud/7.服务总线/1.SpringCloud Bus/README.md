@@ -13,5 +13,37 @@ SpringCloud Bus 是用来将分布式系统的节点与轻量级消息系统链�
 
 SpringCloud Bus 目前支持RabbitMQ和Kafka
 # RabbitMQ环境配置
+启动RabbitMQ
 # SpringCloudBus动态刷新全局广播
+## 修改配置中心3344
+### 添加bus 依赖
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+</dependency>
+```
+### 添加配置文件
+```
+spring.rabbitmq.host=localhost
+spring.rabbitmq.port=5672
+spring.rabbitmq.username=guest
+spring.rabbitmq.password=guest
+management.endpoints.web.exposure.include=bus-refresh
+```
+## 修改客户端3355
+### 添加依赖
+```
+  <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+  </dependency>
+```
+### application.properties
+```
+spring.rabbitmq.host=localhost
+spring.rabbitmq.port=5672
+spring.rabbitmq.username=guest
+spring.rabbitmq.password=guest
+```
 # SpringCloudBus动态刷新点通知
