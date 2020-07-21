@@ -18,6 +18,10 @@ SpringCloud Config 为微服务架构中的微服务提供集中化的外部配�
 将配置信息以REST接口的形式暴露。
 ```
 # demo
+首先在github上创建 `springcloud-config` 项目 并创建文件`config-dev.properties` 内容如下
+```
+config.info=master branch springcloud-config/config-dev.properties version=1
+```
 ## 创建服务端 cloud-config-center-3344 模块
 ### pom.xml
 ```
@@ -87,38 +91,47 @@ http://localhost:3344/master/config-dev.properties
 ## Config客户端配置与测试
 ### pom.xml
 ```
-   <dependencies>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.atguigu.springcloud</groupId>
-            <artifactId>cloud-api-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!--监控-->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.atguigu.springcloud</groupId>
+      <artifactId>cloud-api-commons</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 ```
 ### bootstrap.properties
 ```
@@ -143,4 +156,23 @@ public class ConfigClientMain3355 {
   }
 }
 
+```
+### controller
+获取配置文件里面的内容
+```
+@RestController
+public class ConfigClientController {
+    @Value("${config.info}")
+    private String configInfo;
+
+    @GetMapping("/configInfo")
+    public String getConfigInfo() {
+        return configInfo;
+    }
+}
+```
+### 测试
+访问 `http://localhost:3355/configInfo` 即可查看到配置信息
+```
+master branch springcloud-config/config-dev.properties version=1
 ```
