@@ -1,6 +1,7 @@
 * [解决的问题](#解决的问题)
 * [SpringCloudConfig简介](#SpringCloudConfig简介)
 * [demo](#demo)
+* [Config动态刷新之手动版本](#Config动态刷新之手动版本)
 
 # 解决的问题
 微服务意味着要将单体应用中的业务拆分成一个个子服务，每个服务的粒度相对较小，因此系统中会出现大量的服务。
@@ -176,3 +177,6 @@ public class ConfigClientController {
 ```
 master branch springcloud-config/config-dev.properties version=1
 ```
+# Config动态刷新之手动版本
+
+
