@@ -40,6 +40,7 @@ Hystrix是一个用于处理分布式系统的延迟和容错的开源库，在�
 # HystrixDEMO
 ## 创建项目
 (服务降级demo)
+
 pom.xml
 ```
 <dependencies>
@@ -130,7 +131,7 @@ eureka.instance.lease-renewal-interval-in-seconds=1
 eureka.instance.lease-expiration-duration-in-seconds=2
 
 ```
-main.java
+### main.java
 ```
 @SpringBootApplication
 @EnableEurekaClient
@@ -142,7 +143,7 @@ public class PaymentHystixMain8001 {
 }
 
 ```
-controller
+### controller
 ```
 @RestController
 @Slf4j
@@ -168,7 +169,7 @@ public class PaymentController {
 }
 
 ```
-service
+### service
 ```
 @Service
 public class PaymentService {
@@ -204,4 +205,174 @@ public class PaymentService {
 ```
 ## 服务降级
 （一般在客户端进行降级处理）
+
+### 服务端降级处理
+main添加注解
+```
+@SpringBootApplication
+@EnableEurekaClient
+@EnableCircuitBreaker //降级
+public class PaymentHystixMain8001 {
+  public static void main(String[] args) {
+    SpringApplication.run(PaymentHystixMain8001.class, args);
+  }
+}
+
+```
+服务层修改
+```
+@Service
+public class PaymentService {
+
+  /**
+   * 超时3秒钟则服务降级 或报错 fallback 也服务降级
+   */
+  @HystrixCommand(fallbackMethod = "paymentInfo_TimeOutHandler", commandProperties = {
+      @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")})
+  public String paymentInfo_Timeout(Integer id) {
+    int a = 20 / 0; //造错
+    final int millis = 5000; //超时
+    ThreadUtil.sleep(millis);
+    return "线程池：" + Thread.currentThread().getName() + " paymentInfo_TimeOut,id:" + id
+        + "\t 耗时：(毫秒)" + millis;
+  }
+
+  /**
+   * 降级处理方法
+   */
+  public String paymentInfo_TimeOutHandler(Integer id) {
+    return "线程池：" + Thread.currentThread().getName() + " 系统繁忙请稍后再试";
+  }
+
+```
+### 客户端降级处理
+pom.xml添加依赖
+```
+<!--hystrix-->
+<dependency>
+<groupId>org.springframework.cloud</groupId>
+<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+</dependency>
+
+```
+application.properties 添加配置
+```
+feign.hystrix.enabled=true
+```
+主启动类添加 @EnableHystrix
+```
+@SpringBootApplication
+@EnableFeignClients
+@EnableHystrix
+public class OrderHystrixOrderMain80 {
+  public static void main(String[] args) {
+    SpringApplication.run(OrderHystrixOrderMain80.class, args);
+  }
+}
+
+```
+### 默认降级处理 @DefaultProperties
+```
+@RestController
+@Slf4j
+@DefaultProperties(defaultFallback = "payment_Global_FallbackMethod",
+    commandProperties = {
+        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000")})
+public class OrderHystrixController {
+
+  @Resource
+  private PaymentHystrixService paymentHystrixService;
+
+  /**
+   * 默认 降级处理方法
+   */
+  public String payment_Global_FallbackMethod() {
+    return " Global异常处理信息，请稍后再试!";
+  }
+
+  @GetMapping("/consumer/payment/hystrix/timeout/{id}")
+  @HystrixCommand //使用默认降级处理 也需要加此注解
+  public String paymentInfo_timeOut(@PathVariable Integer id) {
+    String result = paymentHystrixService.paymentInfo_timeOut(id);
+    log.info("***********result:" + result);
+    return result;
+  }
+```
+### 通配服务降级处理Service层处理
+服务层方法配置 @FeignClient配置 fallback属性
+```
+@FeignClient(value = "CLOUD-PROVIDER-HYSTRIX-PAYMENT", fallback = PaymentFallbackService.class)
+public interface PaymentHystrixService {
+
+  @GetMapping("/payment/hystrix/timeout/{id}")
+  String paymentInfo_timeOut(@PathVariable(value = "id") Integer id);
+
+  @GetMapping("/payment/hystrix/ok/{id}")
+  String paymentInfo_ok(@PathVariable(value = "id") Integer id);
+}
+```
+创建一个PaymentHystrixService的实现类
+```
+@Component
+public class PaymentFallbackService implements PaymentHystrixService {
+
+  @Override
+  public String paymentInfo_timeOut(Integer id) {
+    return "------------ PaymentFallbackService fall back timeout";
+  }
+
+  @Override
+  public String paymentInfo_ok(Integer id) {
+    return "------------ PaymentFallbackService fall back ok";
+  }
+}
+```
 ## 服务熔断
+### 服务层
+```
+/**
+ * circuitBreaker.enabled 配置是否开启断路器
+ * circuitBreaker.requestVolumeThreshold  10 请求总次数阀值 （默认20）
+ * circuitBreaker.errorThresholdPercentage  60  错误百分比阀值（默认50%）
+ * 请求次数和失败率 加在一起， 如果请求10次，失败率达到 60% 则触发熔断机制。
+ * 熔断被触发后，请求直接会调用 fallback 降级方法
+ * circuitBreaker.sleepWindowInMilliseconds 快照时间窗（默认10秒） 意思是当熔断被触发后，等待多久后尝试恢复接口的访问。
+ * 在恢复尝试时，如果发现服务也是不能用的则。继续处于熔断状态，如果服务已正常，则关闭熔断状态
+ */
+@HystrixCommand(fallbackMethod = "paymentCircuitBreaker_fallback", commandProperties = {
+    @HystrixProperty(name = "circuitBreaker.enabled", value = "true"),//是否开启断路器
+    @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),//请求次数    (意思是 10次里面有 6次失败则熔断)
+    @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60"),//失败率达到多少后熔断
+    @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000")//时间窗口期 熔断后在规定时间后进行重新通过试试，看服务恢复没有
+})
+public String paymentCircuitBreaker(@PathVariable("id") Integer id) {
+    if (id < 0) {
+    throw new RuntimeException("**********id 不能为负数");
+    }
+    String serialNumber = IdUtil.simpleUUID();
+    return Thread.currentThread().getName() + "\t 调用成功，流水号：" + serialNumber;
+    }
+```
+### 控制层
+```
+// =====服务熔断
+@GetMapping("/payment/circuit/timeout/{id}")
+public String paymentCircuitBreaker(@PathVariable Integer id) {
+    String result = paymentService.paymentCircuitBreaker(id);
+    log.info("***********result:" + result);
+    return result;
+    }
+```
+### 熔断类型
+```
+熔断打开
+    请求不再进行调用当前服务，内部设置时钟一般为MTTR（平均故障处理时间），当打开长达到所设时钟则进入半熔断状态
+熔断半开
+    部分请求根据规则调用当前服务，如果请求成功且符合规则则认为当前服务恢复正常，关闭熔断。
+熔断关闭
+    熔断关闭，不会对服务进行熔断。
+```
+断路器在什么时候起作用?
+
+涉及到断路器的三个重要参数：快照时间窗、请求总数阀值、错误百分比阀值。
+
