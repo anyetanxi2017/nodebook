@@ -67,3 +67,12 @@ config.info=master branch springcloud-config/config-dev.properties version=10
 8. 手动请求配置中心`curl -X POST "http://localhost:3344/actuator/bus-refresh"` 通知所有订阅的客户端自己刷新自己的配置。
 9. 再执行第5步，会发现配置已经更新为`version=10` 说明成功了
 # SpringCloudBus动态刷新点通知 
+指定具体某一个实例生效而不是全部
+
+公式：`hptt://localhost:配置中心端口号/actuator/bus-refresh/{destination}`
+
+demo 不想全局通知，只想定点通知。假设只通知 3355 不通知3366.
+
+`curl -X POST "http://localhost:3344/actuator/bus-refresh/config-client:3355"`
+
+至此，bus 内容完结。
