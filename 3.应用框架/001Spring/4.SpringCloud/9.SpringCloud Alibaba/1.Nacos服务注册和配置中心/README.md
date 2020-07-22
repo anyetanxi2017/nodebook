@@ -3,6 +3,7 @@
 - [服务注册中心演示](#服务注册中心演示)
     - [服务提供者](#服务提供者)
     - [服务消费者](#服务消费者)
+- [服务配置中心演示](#服务配置中心演示)
 # 简介
 为什么叫Nacos.前四个字母分别为Naming和Configuration的前两个字母，最后一个s为Service。
 
@@ -207,3 +208,6 @@ public class OrderNacosController {
 nacos registry,serverPort:9001 3
 nacos registry,serverPort:9002 3 
 ```
+
+# 服务配置中心演示
+
