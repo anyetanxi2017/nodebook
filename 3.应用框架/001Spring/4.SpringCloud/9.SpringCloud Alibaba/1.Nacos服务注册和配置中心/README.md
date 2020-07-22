@@ -291,13 +291,17 @@ https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html
 
 http://localhost:8848/ nacos页面中新建配置文件 
 nacos-config-client-dev.properties 
-
-nacos-config-client-dev.properties在
-> nacos-config-client-dev.properties 公式为: ${spring.application.name}-${spring.profiles.active}.{spring.cloud.nacos.config.file-extension}
-> prefix 的值 默认为 spring.application.name 的值
-> spring.profiles.active 即为当前环境对应的profile, 可以通过配置项 spring.profile.active来配置。
-> file-extension 为配置内容的数据格式，可以通过配置项 spring.cloud.nacos.config.file-extension来配置
 内容如下
 
 `config.info=config info for dev.from nacos ocnfig center`
+
+> nacos-config-client-dev.properties 公式为: ${spring.application.name}-${spring.profiles.active}.{spring.cloud.nacos.config.file-extension}
+>
+> prefix 的值 默认为 spring.application.name 的值
+>
+> spring.profiles.active 即为当前环境对应的profile, 可以通过配置项 spring.profile.active来配置。
+>
+> file-extension 为配置内容的数据格式，可以通过配置项 spring.cloud.nacos.config.file-extension来配置
+
+
 ## 分类配置
