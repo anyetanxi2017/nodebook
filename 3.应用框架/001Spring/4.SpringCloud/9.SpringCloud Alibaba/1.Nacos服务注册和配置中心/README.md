@@ -1,3 +1,6 @@
+ * [简介](#简介)
+ * [安装与运行](#安装与运行)
+ * [服务注册中心演示](#服务注册中心演示)
 # 简介
 为什么叫Nacos.前四个字母分别为Naming和Configuration的前两个字母，最后一个s为Service。
 
@@ -9,7 +12,7 @@ Nacos是一个更易于构建云原生应用动态服务发现、配置管理和
 
 https://nacos.io/en-us/docs/quick-start.html
 
-# 安装并运行
+# 安装与运行
 - 本地需要有Java8+Maven环境
 - 先从官网下载Nacos
 - 到bin 目录中启动 Nacos
@@ -18,3 +21,4 @@ mac/linux  sh startup.sh -m standalone
 windows cmd startup.cmd
 ```
 - 访问 `http://localhost:8848/nacos`  默认账户密码都为 `nacos`
+# 服务注册中心演示
