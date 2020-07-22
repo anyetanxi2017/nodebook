@@ -4,6 +4,8 @@
     - [服务提供者](#服务提供者)
     - [服务消费者](#服务消费者)
 - [服务配置中心演示](#服务配置中心演示)
+    - [基础配置](#基础配置)
+    - [分类配置](#分类配置)
 # 简介
 为什么叫Nacos.前四个字母分别为Naming和Configuration的前两个字母，最后一个s为Service。
 
@@ -209,5 +211,93 @@ nacos registry,serverPort:9001 3
 nacos registry,serverPort:9002 3 
 ```
 
-# 服务配置中心演示
+---
 
+# 服务配置中心演示
+## 基础配置
+1. 创建 cloudalibaba-config-nacos-client3377
+2. pom.xml
+```
+  <dependencies>
+    <dependency>
+      <groupId>com.alibaba.cloud</groupId>
+      <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.alibaba.cloud</groupId>
+      <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+```
+3. bootstrap.properties
+```
+server.port=3377
+spring.application.name=nacos-config-client
+spring.cloud.nacos.discovery.server-addr=localhost:8844
+spring.cloud.nacos.config.server-addr=localhost:8844
+spring.cloud.nacos.config.file-extension=properties
+```
+4. application.properties
+```
+spring.profiles.active=dev
+```
+5. 主启动类
+```
+@SpringBootApplication
+@EnableDiscoveryClient
+public class NacosConfigClientMain3377 {
+
+  public static void main(String[] args) {
+    SpringApplication.run(NacosConfigClientMain3377.class, args);
+  }
+}
+```
+6. controller
+```
+@RestController
+@RefreshScope //支持Nacos的动态刷新功能
+public class ConfigClientController {
+
+  @Value("${config.info}")
+  private String configInfo;
+
+  @GetMapping("/config/info")
+  public String getConfigInfo() {
+    return configInfo;
+  }
+}
+
+```
+7. Nacos中的匹配规则
+
+Nacos中的dataid的组成格式及与SpringBoot配置文件中的匹配规则
+https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html
+
+http://localhost:8848/ nacos页面中新建配置文件 
+nacos-config-client-dev.properties 
+
+nacos-config-client-dev.properties在
+> nacos-config-client-dev.properties 公式为: ${spring.application.name}-${spring.profiles.active}.{spring.cloud.nacos.config.file-extension}
+> prefix 的值 默认为 spring.application.name 的值
+> spring.profiles.active 即为当前环境对应的profile, 可以通过配置项 spring.profile.active来配置。
+> file-extension 为配置内容的数据格式，可以通过配置项 spring.cloud.nacos.config.file-extension来配置
+内容如下
+
+`config.info=config info for dev.from nacos ocnfig center`
+## 分类配置
