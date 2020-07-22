@@ -168,6 +168,18 @@ public class OrderNacosMain83 {
   }
 }
 ```
+### RestTemplate配置类
+```
+@Configuration
+public class RestTemplateConfig {
+
+  @Bean
+  @LoadBalanced
+  public RestTemplate getRestTemplate() {
+    return new RestTemplate();
+  }
+}
+```
 ### 控制类
 ```
 @RestController
@@ -184,4 +196,14 @@ public class OrderNacosController {
     return restTemplate.getForObject(serverURL + "/payment/nacos/" + id, String.class);
   }
 }
+```
+
+启动 83并测试 
+
+访问`http://localhost:83/consumer/payment/nacos/3`
+
+会发现两个微服务已经开始正常提供
+```
+nacos registry,serverPort:9001 3
+nacos registry,serverPort:9002 3 
 ```
