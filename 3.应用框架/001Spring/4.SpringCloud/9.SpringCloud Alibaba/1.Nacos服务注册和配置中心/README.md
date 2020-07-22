@@ -110,3 +110,78 @@ public class PaymentMain9001 {
 > 启动9002 可以复制9001 只需要在 VM optins 参数中加 -DServer.port=9002 即可
 
 ## 服务消费者
+### 创建 cloudalibaba-consumer-nacos-order83
+### pom
+```
+  <dependencies>
+    <dependency>
+      <groupId>com.alibaba.cloud</groupId>
+      <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.atguigu.springcloud</groupId>
+      <artifactId>cloud-api-commons</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+```
+### application.properties
+```
+server.port=83
+spring.application.name=nacos-order-consumer
+spring.cloud.nacos.discovery.server-addr=localhost:8848
+management.endpoints.web.exposure.include=*
+# 消费者将要去访问的微服务名称(注册成功进nacos的微服务提供者)
+service-url.nacos-user-service=http://nacos-payment-provider
+```
+### 主启动类
+```
+@EnableDiscoveryClient
+@SpringBootApplication
+public class OrderNacosMain83 {
+
+  public static void main(String[] args) {
+    SpringApplication.run(OrderNacosMain83.class, args);
+  }
+}
+```
+### 控制类
+```
+@RestController
+@Slf4j
+public class OrderNacosController {
+
+  @Value("${service-url.nacos-user-service}")
+  private String serverURL;
+  @Resource
+  private RestTemplate restTemplate;
+
+  @GetMapping("/consumer/payment/nacos/{id}")
+  public String paymentInfo(@PathVariable("id") Long id) {
+    return restTemplate.getForObject(serverURL + "/payment/nacos/" + id, String.class);
+  }
+}
+```
