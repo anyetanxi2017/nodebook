@@ -249,9 +249,10 @@ nacos registry,serverPort:9002 3
 ```
 server.port=3377
 spring.application.name=nacos-config-client
-spring.cloud.nacos.discovery.server-addr=localhost:8844
-spring.cloud.nacos.config.server-addr=localhost:8844
+spring.cloud.nacos.discovery.server-addr=localhost:8848
+spring.cloud.nacos.config.server-addr=localhost:8848
 spring.cloud.nacos.config.file-extension=properties
+
 ```
 4. application.properties
 ```
@@ -303,5 +304,5 @@ nacos-config-client-dev.properties
 >
 > file-extension 为配置内容的数据格式，可以通过配置项 spring.cloud.nacos.config.file-extension来配置
 
-
+**nacos 配置中心默认自动刷新，只要修改配置后，自动就刷新了**
 ## 分类配置
