@@ -215,6 +215,29 @@ nacos registry,serverPort:9002 3
 ---
 
 # 服务配置中心
+## Nacos配置中心
+命名空间+Group+DataId三者关系？
+
+是什么？
+```
+类型Java里面的 package名和类名
+最外层的 namespace是可以用于区分部署环境的，group和dataid逻辑上区分两个目标对象。
+默认情况
+namespace=public,group=DEFAULT_GROUP,默认cluster是DEFAULT
+
+Nacos默认命名空间是public ,namespace主要用来实现隔离。
+比方说我们现在有三个环境：开发，测试，生产环境，我们就可以创建三个namespace。
+
+group默认是DEFAULT_GROUP,group可以把不同的微服务划分到同一个分组里面去。
+
+Service就是微服务；一个Service可以包含多个Cluster(集群)，Nacos默认Cluster是DEFAULT，Cluster是对指定微服务的一个虚拟划分。
+比方说为也容灾，将Service微服务分别部署在了杭州机房和广州机房，这时就可以给杭州机房的Service微服务起一个集群名称(HZ).
+
+最后是Instance,就是微服务的实例。
+
+
+```
+
 ## 基础配置
 1. 创建 cloudalibaba-config-nacos-client3377
 2. pom.xml
@@ -307,4 +330,46 @@ nacos-config-client-dev.properties
 
 **nacos 配置中心默认自动刷新，只要修改配置后，自动就刷新了**
 ## 分类配置
-## Nacos配置中心
+### Data ID 方式多配置文件切换 方案
+在Nacos创建 `nacos-config-client-test.properties`
+
+```
+config.info=from nacos config center,nacos-config-test.properties,version=2
+```
+此时就有两个配置文件了
+- nacos-config-client-dev.properties
+- nacos-config-client-test.properties
+
+系统进行切换时在`application.properties`文件里修改即可
+```
+#spring.profiles.active=dev
+spring.profiles.active=test
+```
+### group分组方案
+新建Group
+```
+Data ID:nacos-config-client-info.properties
+Group:DEV_GROUP
+content: config.info=from nacos config center,nacos-config-client-info.properties, version=1
+
+Data ID:nacos-config-client-info.properties
+Group: TEST_GROUP
+content: config.info=from nacos config center,nacos-config-client-info.properties TEST_GROUP, version=1 
+```
+修改`bootstrap.properties` 指定group
+```
+server.port=3377
+spring.application.name=nacos-config-client
+spring.cloud.nacos.discovery.server-addr=localhost:8848
+spring.cloud.nacos.config.server-addr=localhost:8848
+spring.cloud.nacos.config.file-extension=properties
+spring.cloud.nacos.config.group=TEST_GROUP
+```
+修改 `application.properties` 使用 info 
+```
+#spring.profiles.active=dev
+#spring.profiles.active=test
+spring.profiles.active=info
+
+```
+
