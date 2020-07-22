@@ -330,7 +330,7 @@ nacos-config-client-dev.properties
 
 **nacos 配置中心默认自动刷新，只要修改配置后，自动就刷新了**
 ## 分类配置
-### Data ID 方式多配置文件切换 方案
+### DataID方案
 在Nacos创建 `nacos-config-client-test.properties`
 
 ```
@@ -346,7 +346,7 @@ config.info=from nacos config center,nacos-config-test.properties,version=2
 spring.profiles.active=test
 ```
 ### group分组方案
-新建Group
+在Nacos新建Group
 ```
 Data ID:nacos-config-client-info.properties
 Group:DEV_GROUP
@@ -372,4 +372,25 @@ spring.cloud.nacos.config.group=TEST_GROUP
 spring.profiles.active=info
 
 ```
+### 命名空间方案
+新建test的Namespace
+```
+Data ID:nacos-config-client-info.properties
+Group:DEFAULT_GROUP
+content: config.info=from nacos config center,nacos-config-client-info.properties ,namespace=dev, TEST_GROUP, version=10
+```
+创建test成功后 复制 test命名空间的id`3252e46d-7f2a-4e2d-9519-5f174838708f`
+
+修改`bootstrap.properties` 指定group和namespace **注意namespace值使用的是生成的ID**
+```
+server.port=3377
+spring.application.name=nacos-config-client
+spring.cloud.nacos.discovery.server-addr=localhost:8848
+spring.cloud.nacos.config.server-addr=localhost:8848
+spring.cloud.nacos.config.file-extension=properties
+spring.cloud.nacos.config.group=DEFAULT_GROUP
+spring.cloud.nacos.config.namespace=3252e46d-7f2a-4e2d-9519-5f174838708f
+```
+
+
 
