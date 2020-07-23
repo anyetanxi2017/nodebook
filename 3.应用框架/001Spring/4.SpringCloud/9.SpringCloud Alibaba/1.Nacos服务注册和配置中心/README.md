@@ -7,6 +7,8 @@
     - [Nacos配置中心](#Nacos配置中心)
     - [基础配置](#基础配置)
     - [分类配置](#分类配置)
+- [集群和持久化配置](#集群和持久化配置)
+	- [微服务注册进集群](#微服务注册进集群)
 # 简介
 为什么叫Nacos.前四个字母分别为Naming和Configuration的前两个字母，最后一个s为Service。
 
@@ -391,6 +393,95 @@ spring.cloud.nacos.config.file-extension=properties
 spring.cloud.nacos.config.group=DEFAULT_GROUP
 spring.cloud.nacos.config.namespace=3252e46d-7f2a-4e2d-9519-5f174838708f
 ```
+# 集群和持久化配置
+## 持久化切换配置
+1. 找到`nacos/conf/nacos-mysql.sql`并执行.
+2. 修改`nacos/conf/application.properties`文件
+```
+spring.datasource.platform=mysql
 
+### Count of DB:
+db.num=1
 
+### Connect URL of DB:
+db.url.0=jdbc:mysql://127.0.0.1:3306/nacos_config?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+db.user=nacos
+db.password=nacos
+```
+3. 重启nacos
 
+## 集群配置
+1. msyql持久化配置先设置好
+2. nacos的集群配置cluster.conf
+```
+cp cluster.conf.example cluster.conf
+
+查看本机ip
+将 cluster.conf的内容修改为
+192.168.8.111:3333
+192.168.8.111:4444
+192.168.8.111:5555
+```
+3.编辑nacos的启动脚本startup.sh,使它能够接受不同的启动端口
+``` 
+修改两处：
+第一处：加t: (用于接收外部传进来的参数,注意这里只能是单个字母，不能是单词，否则接收不到。) 
+ 59 while getopts ":m:f:s:c:p:t:" opt
+ 60 do
+ 61     case $opt in
+ 62         m)
+ 63             MODE=$OPTARG;;
+ 64         f)
+ 65             FUNCTION_MODE=$OPTARG;;
+ 66         s)
+ 67             SERVER=$OPTARG;;
+ 68         c)
+ 69             MEMBER_LIST=$OPTARG;;
+ 70         p)
+ 71             EMBEDDED_STORAGE=$OPTARG;;
+ 72         t)
+ 73             PORT=$OPTARG;;
+ 74         ?)
+ 75         echo "Unknown parameter"
+ 76         exit 1;;
+ 77     esac
+ 78 done
+
+第二处:加Java 启动端口参数 -DServer.port=$PORT
+144 nohup $JAVA -DServer.port=$PORT ${JAVA_OPT} nacos.nacos >> ${BASE_DIR}/logs/start.out 2>&1 &
+```
+4. 配置nginx 负载均衡到3个端口上
+```
+ 32     upstream cluster{
+ 33             server 127.0.0.1:3333;
+ 34             server 127.0.0.1:4444;
+ 35             server 127.0.0.1:5555;
+ 36     }
+ 37     
+ 38     
+ 39     #gzip  on;
+ 40     server{
+ 41         listen 1111;
+ 42         server_name localhost;
+ 43         location /{
+ 44             proxy_pass http://cluster;
+ 45         }
+ 46     }
+
+nginx -t 查看nginx配置是否正确
+nginx -s reload 重启nginx
+```
+5. 启动 nacos 在三个端口3333 4444 5555
+
+## 微服务注册进集群
+修改`application.properties`
+
+将discovery.server-addr 设置为nginx代理的nacos地址
+```
+server.port=9001
+spring.application.name=nacos-payment-provider
+#spring.cloud.nacos.discovery.server-addr=localhost:8848
+spring.cloud.nacos.discovery.server-addr=192.168.8.111:1111
+management.endpoints.web.exposure.include=*
+```
+最后登录 nacos查看服务是否已经成功注册。
