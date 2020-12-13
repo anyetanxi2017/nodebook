@@ -12,17 +12,16 @@ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 mkdir -p /mydata/redis/conf
 touch /home/data/redis/conf/redis.conf
 
-docker run -p 6379:6379 --name redis \
--v /home/redis/conf/:/home/redis/ \
--v /home/redis/data/:/home/redis/data \
---restart=always \
--d redis redis-server /home/redis/redis.conf 
+docker run -p 6379:6739 \
+-v /home/data/redis/conf/redis.conf:/etc/redis/redis.conf \
+-v /home/data/redis/data/:/data --name redis -d redis:latest \
+--requirepass "12*33KdwefaDIjAEfo" 
 
-
-docker run -d -p 6379:6379 --name redis \ 
--v /home/redis/redis.conf:/etc/redis/redis.conf \ 
--v home/redis/data:/data    \
-redis-server /etc/redis/redis.conf  --appendonly yes
+docker run -p 6379:6739 \
+-v /home/data/redis/conf/redis.conf:/etc/redis/redis.conf \
+-v /home/data/redis/data/:/data --name redis -d redis:latest \
+--requirepass "mypassword"
+redis-server /etc/redis/redis.conf
 ```
 ##  连接docker 中的reids
 ```
