@@ -17,6 +17,12 @@ docker run -p 6379:6379 --name redis \
 -v /home/redis/data/:/home/redis/data \
 --restart=always \
 -d redis redis-server /home/redis/redis.conf 
+
+
+docker run -d -p 6379:6379 --name redis \ 
+-v /home/redis/redis.conf:/etc/redis/redis.conf \ 
+-v home/redis/data:/data    \
+redis-server /etc/redis/redis.conf  --appendonly yes
 ```
 ##  连接docker 中的reids
 ```
