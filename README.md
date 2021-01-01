@@ -19,8 +19,11 @@ docker pull redis
 ```
 mkdir -p /mydata/redis/conf
 touch /mydata/redis/conf/redis.conf
+
+appendonly yes
+requirepass 12*33KdwefaDIjAEfo
+bind 0.0.0.0
 ```
-> 修改redis.conf 添加appendonly yes 表示 持久化数据 <br>
 > 更多配置 看这里 https://redis.io/topics/config
 
 制作镜像
