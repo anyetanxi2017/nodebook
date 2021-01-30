@@ -28,3 +28,9 @@
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     } 
 ```
+## windows nginx 命令
+- 启动 `start nginx`
+- 停止 `nginx.exe -s stop`
+- 重新打开日志文件 `nginx.exe -s reopen`
+- 查看nginx 版本 `nginx -v`
+- 重新载入Nginx `nginx.exe -s reload`
