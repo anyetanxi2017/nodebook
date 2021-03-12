@@ -1,9 +1,11 @@
-
-# 创建数据库
+# 常用命令
+## 查询正在执行的操作
+`show full processlist`
+## 创建数据库
 ```
 CREATE DATABASE  `wordpress` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
-# 递归查询下级ID
+## 递归查询下级ID
 ```
 DELIMITER //
 CREATE FUNCTION `queryChildList`(rootId INT)
