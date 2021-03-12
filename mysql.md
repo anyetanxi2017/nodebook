@@ -1,6 +1,6 @@
 # 常用命令
 ## 查询正在执行的操作
-`show full processlist`
+`show full processlist` 或者 `show processlist`
 ## 创建数据库
 ```
 CREATE DATABASE  `wordpress` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
